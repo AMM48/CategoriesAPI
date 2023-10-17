@@ -105,8 +105,8 @@ categories = {
 
 @app.post("/classifyTransaction")
 async def classify_transaction(transaction: schema.Transaction):
-    loaded_model = joblib.load('E:\Downloads\model.joblib')
-    loaded_vectorizer = joblib.load('E:\Downloads\\vectorizer.joblib')
+    loaded_model = joblib.load('./model.joblib')
+    loaded_vectorizer = joblib.load('./vectorizer.joblib')
 
     new_instance = [transaction.message]
 
