@@ -9,6 +9,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack
 import schema
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 categories = {
     'Food': ['restaurant', 'eatery', 'diner', 'bistro', 'brasserie', 'tavern', 'pizzeria', 'steakhouse', 'steak',
              'bar', 'sushi bar', 'burger', 'bbq', 'noodle', 'breakfast', 'break fast', 'lunch', 'diner',
