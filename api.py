@@ -127,10 +127,13 @@ async def classify_transaction(transaction: schema.Transaction):
     new_prediction = loaded_model.predict(new_instance_counts)
     confidence_levels = loaded_model.predict_proba(new_instance_counts)
     predicted_category = new_prediction[0]
-    print("The predicted category is:", predicted_category)
 
     predicted_category_index = list(loaded_model.classes_).index(predicted_category)
 
     confidence_for_predicted_category = confidence_levels[0][predicted_category_index]
-    print(f"Confidence for {predicted_category}: {confidence_for_predicted_category * 100}")
-    return predicted_category
+    result = {
+    "category": predicted_category,
+    "probability": round((confidence_for_predicted_category * 100), 2)
+    }
+
+    return result
