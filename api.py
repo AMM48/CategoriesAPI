@@ -11,6 +11,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack
 import schema
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 categories = {
     'Food': ['restaurant', 'eatery', 'diner', 'bistro', 'brasserie', 'tavern', 'pizzeria', 'steakhouse', 'steak',
              'bar', 'sushi bar', 'burger', 'bbq', 'noodle', 'breakfast', 'break fast', 'lunch', 'diner',
@@ -108,8 +115,8 @@ categories = {
 
 @app.post("/classifyTransaction")
 async def classify_transaction(transaction: schema.Transaction):
-    loaded_model = joblib.load('E:\Downloads\model.joblib')
-    loaded_vectorizer = joblib.load('E:\Downloads\\vectorizer.joblib')
+    loaded_model = joblib.load('./model.joblib')
+    loaded_vectorizer = joblib.load('./vectorizer.joblib')
 
     new_instance = [transaction.message]
 
@@ -124,15 +131,17 @@ async def classify_transaction(transaction: schema.Transaction):
     new_prediction = loaded_model.predict(new_instance_counts)
     confidence_levels = loaded_model.predict_proba(new_instance_counts)
     predicted_category = new_prediction[0]
-    print("The predicted category is:", predicted_category)
 
     predicted_category_index = list(
         loaded_model.classes_).index(predicted_category)
 
     confidence_for_predicted_category = confidence_levels[0][predicted_category_index]
-    print(
-        f"Confidence for {predicted_category}: {confidence_for_predicted_category * 100}")
-    return predicted_category
+    result = {
+        "category": predicted_category,
+        "probability": round((confidence_for_predicted_category * 100), 2)
+    }
+
+    return result
 
 
 @app.post("/forecastSpendings")
@@ -205,7 +214,3 @@ def remove_outliers(df, column):
     Q1 = df[column].quantile(0.25)
     Q3 = df[column].quantile(0.75)
     IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    df = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
-    return df
