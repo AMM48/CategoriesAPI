@@ -15,9 +15,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
-)
+    allow_methods=["*"],
+    allow_headers=["*"],)
 categories = {
     'Food': ['restaurant', 'eatery', 'diner', 'bistro', 'brasserie', 'tavern', 'pizzeria', 'steakhouse', 'steak',
              'bar', 'sushi bar', 'burger', 'bbq', 'noodle', 'breakfast', 'break fast', 'lunch', 'diner',
@@ -166,7 +165,6 @@ async def forecast_spendings(spendings: schema.Spendings):
 
         results_df = pd.DataFrame(results)
         results_df.set_index('Category', inplace=True)
-        print(results_df)
         return results_df
     except:
         print("test")
@@ -199,7 +197,6 @@ def daily_to_monthly(spendings):
     # Reorder columns and sort by date
     df_pivot = df_pivot[desired_categories]
     df_pivot.sort_values(by='date', inplace=True)
-    print(df_pivot)
     return df_pivot
 
 
@@ -214,3 +211,7 @@ def remove_outliers(df, column):
     Q1 = df[column].quantile(0.25)
     Q3 = df[column].quantile(0.75)
     IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    df = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+    return df
