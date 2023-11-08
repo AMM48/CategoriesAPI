@@ -146,6 +146,7 @@ async def classify_transaction(transaction: schema.Transaction):
 @app.post("/forecastSpendings")
 async def forecast_spendings(spendings: schema.Spendings):
     try:
+        print(spendings)
         monthlySpending = daily_to_monthly(spendings.spendings)
         df_no_outliers = monthlySpending.copy()
         for category in monthlySpending.columns:
@@ -166,8 +167,8 @@ async def forecast_spendings(spendings: schema.Spendings):
         results_df = pd.DataFrame(results)
         results_df.set_index('Category', inplace=True)
         return results_df
-    except:
-        print("test")
+    except Exception as e:
+        print(e)
         return {}
 
 
@@ -200,11 +201,11 @@ def daily_to_monthly(spendings):
     return df_pivot
 
 
-def forecast_arima_with_differencing(series, order=(5, 1, 0), forecast_steps=1):
-    model = ARIMA(series, order=order)
-    model_fit = model.fit()
-    forecast = model_fit.forecast(steps=forecast_steps)
-    return forecast[0]
+def forecast_arima_with_differencing(series, order=(1,1,0), forecast_steps=1):
+        model = ARIMA(series, order=order)
+        model_fit = model.fit()
+        forecast = model_fit.forecast(steps=forecast_steps)
+        return forecast[0]
 
 
 def remove_outliers(df, column):
