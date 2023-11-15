@@ -175,27 +175,21 @@ async def forecast_spendings(spendings: schema.Spendings):
 def daily_to_monthly(spendings):
     df = pd.DataFrame(spendings)
 
-    # Convert 'date' to datetime
     df['date'] = pd.to_datetime(df['date'], format='%d/%m/%Y')
 
-    # Set 'date' to the last day of each month
     df['date'] = df['date'].dt.to_period('M').dt.to_timestamp('M')
 
-    # Convert the timestamp to a string without the time component
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
 
-    # Pivot the table to get categories as columns and sum the amounts
     df_pivot = df.pivot_table(index='date', columns='category',
                               values='amount', aggfunc='sum').fillna(0.0)
 
-    # Ensure all desired categories are present
     desired_categories = ["Food", "Coffee", "Transit",
                           "Health", "Grocery", "Shopping", "Bills"]
     for category in desired_categories:
         if category not in df_pivot.columns:
             df_pivot[category] = 0.0
 
-    # Reorder columns and sort by date
     df_pivot = df_pivot[desired_categories]
     df_pivot.sort_values(by='date', inplace=True)
     return df_pivot
